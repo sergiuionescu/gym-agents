@@ -1,1 +1,3 @@
-from SpeculativeDiffAgent import SpeculativeDiffAgent
+from DiffAgentSpeculative import DiffAgentSpeculative
+from DiffAgent import DiffAgent
+from Experience import Experience

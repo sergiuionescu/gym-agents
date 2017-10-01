@@ -2,7 +2,8 @@ import os
 import random
 import cPickle as pickle
 
-from agents import SpeculativeDiffAgent as Agent
+from agents import DiffAgent as Agent
+from agents import Experience
 
 
 class World(object):
@@ -24,7 +25,8 @@ class World(object):
         return next_agent
 
     def birth(self, action_space):
-        agent = Agent(action_space)
+        experience = Experience()
+        agent = Agent(experience, action_space)
         agent.name = random.choice(self.names)
         self.population[self.population.__len__()] = agent
 
@@ -46,7 +48,8 @@ class World(object):
             os.makedirs(path)
 
         for key, agent in self.population.items():
-            pickle.dump(agent, open(os.path.join(path, str(agent.total_reward) + '.' + agent.name + '.pcl'), 'w'))
+            pickle.dump(agent,
+                        open(os.path.join(path, str(agent.experience.total_reward) + '.' + agent.name + '.pcl'), 'w'))
 
     def get_path(self):
         return os.path.join('rem', self.environment, self.name)

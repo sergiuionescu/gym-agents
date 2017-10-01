@@ -6,22 +6,25 @@ import os
 import logging
 import statsd
 import argparse
+import time
 
 from worlds import World
 
 
 parser = argparse.ArgumentParser(description="Launches worlds")
-parser.add_argument('environment', nargs="?", default="Copy-v0")
-parser.add_argument('world', nargs="?", default="")
+parser.add_argument('--env', nargs="?", default="Copy-v0")
+parser.add_argument('--world', nargs="?", default="")
+parser.add_argument('--sleep', nargs="?", default=0, type=float)
 args = parser.parse_args()
 
 statsd = statsd.StatsClient('localhost', 8125, prefix='agents')
 
-environment = args.environment
+environment = args.env
 world_name = args.world
+sleep = args.sleep
 env = gym.make(environment)
 
-max_agents = 10
+max_agents = 1
 max_episodes = 100
 max_attempts = 100
 
@@ -42,17 +45,21 @@ for agent_position in range(max_agents):
     observation = env.reset()
     agent = world.get_agent(agent_position, env.action_space)
     for episodes in range(max_episodes):
+        agent.experience.reset_attempts()
         for t in range(max_attempts):
+            time.sleep(sleep)
             action = agent.act(observation)
             observation, reward, done, info = env.step(action)
             env.render()
-            if reward < 1:
-                print("Agent was not selected  after {} timesteps".format(t + 1))
-                break
-            else:
-                agent.total_reward += 1
 
-            statsd.set(world.name + '.' + agent.name, agent.total_reward)
+            if reward < 1:
+                agent.random_prediction()
+
+            agent.add_reward(reward)
+
+            statsd.set(world.name + '.' + agent.name, agent.experience.total_reward)
+            statsd.gauge(world.name + '.' + agent.name + '.' + 'success_rate', agent.experience.get_success_rate())
+            statsd.gauge(world.name + '.' + agent.name + '.' + 'avg_success_rate', agent.experience.get_avg_success_rate())
 
             if done:
                 found = True
