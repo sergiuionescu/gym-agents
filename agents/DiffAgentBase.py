@@ -22,11 +22,11 @@ class DiffAgentBase(object):
             average_score = total_score / len(self.knowledge.behaviour)
             new_behaviour = {}
             for b, score in self.knowledge.behaviour.iteritems():
-                if score >= average_score:
-                    new_behaviour[b] = score / total_score
-            self.knowledge.replace_behaviour(new_behaviour)
+                if score >= average_score and total_score > 0:
+                    new_behaviour[b] = score
+        #    self.knowledge.replace_behaviour(new_behaviour)
 
-            self.behaviour = self.knowledge.behaviour.iteritems()
+        #    self.behaviour = self.knowledge.behaviour.iteritems()
 
     def sleep(self):
         self.behaviour = None

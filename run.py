@@ -12,10 +12,14 @@ from worlds import World
 
 
 parser = argparse.ArgumentParser(description="Launches worlds")
-parser.add_argument('--env', nargs="?", default="RepeatCopy-v0")
-parser.add_argument('--agent_class', nargs="?", default="DiffAgentSpeculative")
+parser.add_argument('--env', nargs="?", default="Copy-v0")
+parser.add_argument('--agent_class', nargs="?", default="DiffAgentKnowledgeable")
 parser.add_argument('--world', nargs="?", default="")
 parser.add_argument('--sleep', nargs="?", default=0, type=float)
+parser.add_argument('--episodes', nargs="?", default=100, type=int)
+parser.add_argument('--agents', nargs="?", default=1, type=int)
+parser.add_argument('--attempts', nargs="?", default=100, type=int)
+
 args = parser.parse_args()
 
 statsd = statsd.StatsClient('localhost', 8125, prefix='agents')
@@ -24,11 +28,10 @@ environment = args.env
 world_name = args.world
 sleep = args.sleep
 agent_class = args.agent_class
+max_episodes = args.episodes
+max_agents = args.agents
+max_attempts = args.attempts
 env = gym.make(environment)
-
-max_agents = 1
-max_episodes = 3000
-max_attempts = 100
 
 gym.scoreboard.api_key = "sk_MXIkB1v6Shebbl5pMWtTA"
 outdir = '/tmp/cem-agent-results'

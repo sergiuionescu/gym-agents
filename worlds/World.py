@@ -59,7 +59,8 @@ class World(object):
         for key, agent in self.population.items():
             agent.sleep()
             pickle.dump(agent,
-                        open(os.path.join(path, str(agent.experience.total_reward) + '.' + agent.name + '.pcl'), 'w'))
+                        open(os.path.join(path, agent.name + '.pcl'), 'w'))
+                        # open(os.path.join(path, str(agent.experience.total_reward) + '.' + agent.name + '.pcl'), 'w'))
 
     def get_path(self):
         return os.path.join('rem', self.environment, self.name)

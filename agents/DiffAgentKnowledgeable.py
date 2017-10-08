@@ -5,6 +5,8 @@ from agents import DiffAgentBase
 
 class DiffAgentKnowledgeable(DiffAgentBase):
     last_reward = 0
+    previous_diff = []
+    reward_streak = 0
 
     def prediction(self):
         try:
@@ -35,15 +37,27 @@ class DiffAgentKnowledgeable(DiffAgentBase):
         return self.current_prediction
 
     def add_reward(self, reward):
-        if reward > self.last_reward and reward > 0:
-            self.knowledge.add_behaviour(tuple([tuple(self.diff), tuple(self.noise_reduction)]), 1)
-            if not self.behaviour:
-                self.behaviour = self.knowledge.behaviour.iteritems()
-            self.last_reward = reward
+        if self.diff == self.previous_diff and reward > 0:
+            self.reward_streak += 1
+            perceived_reward = 10 * reward
+        else:
+            self.reward_streak = 1
+            perceived_reward = reward
 
-        self.last_reward = reward
-        if reward < 0:
+        if reward == 0:
+            perceived_reward = -1.0
+
+        self.previous_diff = self.diff
+
+        self.knowledge.add_behaviour(tuple([tuple(self.diff), tuple(self.noise_reduction)]), perceived_reward)
+        if reward > 0:
+            if reward > self.last_reward:
+                if not self.behaviour:
+                    self.behaviour = self.knowledge.behaviour.iteritems()
+        else:
             self.prediction()
+        self.last_reward = reward
+
 
         self.experience.add_reward(reward)
         self.experience.success += reward > 0
