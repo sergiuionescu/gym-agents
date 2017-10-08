@@ -1,27 +1,23 @@
 import numpy as np
 
+from agents import DiffAgentBase
 
-class DiffAgentSpeculative(object):
-    diff = []
-    prediction = []
-    name = ''
 
-    def __init__(self, agent_experience, space):
+class DiffAgentSpeculative(DiffAgentBase):
 
-        self.space = space
-        self.experience = agent_experience
-        self.random_prediction()
-
-    def random_prediction(self):
+    def prediction(self):
         self.diff = np.random.randint(0, self.space.spaces[2].n)
 
     def act(self, ob):
-        self.prediction = (self.diff + ob) % self.space.spaces[2].n
+        self.current_prediction = (self.diff + ob) % self.space.spaces[2].n
 
-        a = [1, 1, self.prediction]
+        a = [1, 1, self.current_prediction]
         return a
 
     def add_reward(self, reward):
+        if reward <= 0:
+            self.prediction()
+
         self.experience.add_reward(reward)
         self.experience.success += reward > 0
         self.experience.total_success += reward > 0

@@ -12,7 +12,8 @@ from worlds import World
 
 
 parser = argparse.ArgumentParser(description="Launches worlds")
-parser.add_argument('--env', nargs="?", default="Copy-v0")
+parser.add_argument('--env', nargs="?", default="RepeatCopy-v0")
+parser.add_argument('--agent_class', nargs="?", default="DiffAgentSpeculative")
 parser.add_argument('--world', nargs="?", default="")
 parser.add_argument('--sleep', nargs="?", default=0, type=float)
 args = parser.parse_args()
@@ -22,10 +23,11 @@ statsd = statsd.StatsClient('localhost', 8125, prefix='agents')
 environment = args.env
 world_name = args.world
 sleep = args.sleep
+agent_class = args.agent_class
 env = gym.make(environment)
 
 max_agents = 1
-max_episodes = 100
+max_episodes = 3000
 max_attempts = 100
 
 gym.scoreboard.api_key = "sk_MXIkB1v6Shebbl5pMWtTA"
@@ -37,7 +39,7 @@ logger.setLevel(logging.INFO)
 
 np.random.seed(0)
 
-world = World(environment)
+world = World(environment, agent_class)
 world.wake(world_name)
 
 found = False
@@ -46,14 +48,12 @@ for agent_position in range(max_agents):
     agent = world.get_agent(agent_position, env.action_space)
     for episodes in range(max_episodes):
         agent.experience.reset_attempts()
+        agent.wake()
         for t in range(max_attempts):
             time.sleep(sleep)
             action = agent.act(observation)
             observation, reward, done, info = env.step(action)
             env.render()
-
-            if reward < 1:
-                agent.random_prediction()
 
             agent.add_reward(reward)
 
