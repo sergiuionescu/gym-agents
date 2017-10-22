@@ -8,6 +8,7 @@ parser.add_argument('--sleep', nargs="?", default=0, type=float)
 parser.add_argument('--episodes', nargs="?", default=100, type=int)
 parser.add_argument('--agents', nargs="?", default=1, type=int)
 parser.add_argument('--attempts', nargs="?", default=100, type=int)
+parser.add_argument('--render', nargs="?", default=0, type=int)
 
 
 args = parser.parse_args()

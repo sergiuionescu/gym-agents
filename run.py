@@ -16,9 +16,10 @@ parser.add_argument('--env', nargs="?", default="RepeatCopy-v0")
 parser.add_argument('--agent_class', nargs="?", default="DiffAgentKnowledgeable")
 parser.add_argument('--world', nargs="?", default="")
 parser.add_argument('--sleep', nargs="?", default=0, type=float)
-parser.add_argument('--episodes', nargs="?", default=100, type=int)
+parser.add_argument('--episodes', nargs="?", default=1000, type=int)
 parser.add_argument('--agents', nargs="?", default=1, type=int)
 parser.add_argument('--attempts', nargs="?", default=100, type=int)
+parser.add_argument('--render', nargs="?", default=1, type=int)
 
 args = parser.parse_args()
 
@@ -29,6 +30,7 @@ agent_class = args.agent_class
 max_episodes = args.episodes
 max_agents = args.agents
 max_attempts = args.attempts
+render = args.render
 env = gym.make(environment)
 
 statsd = statsd.StatsClient('localhost', 8125, prefix='agents')
@@ -56,7 +58,8 @@ for agent_position in range(max_agents):
             time.sleep(sleep)
             action = agent.act(observation)
             observation, reward, done, info = env.step(action)
-            env.render()
+            if render:
+                env.render()
 
             agent.add_reward(reward)
 

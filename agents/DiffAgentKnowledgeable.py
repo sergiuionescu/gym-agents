@@ -58,7 +58,6 @@ class DiffAgentKnowledgeable(DiffAgentBase):
             self.prediction()
         self.last_reward = reward
 
-
         self.experience.add_reward(reward)
         self.experience.success += reward > 0
         self.experience.total_success += reward > 0

@@ -16,15 +16,17 @@ class DiffAgentBase(object):
     def wake(self):
 
         total_score = 0
+        count = 0
         if len(self.knowledge.behaviour) > 0:
             for b, score in self.knowledge.behaviour.iteritems():
                 total_score += score
             average_score = total_score / len(self.knowledge.behaviour)
             new_behaviour = {}
             for b, score in self.knowledge.behaviour.iteritems():
-                if score >= average_score and total_score > 0:
+                count += 1;
+                if score >= average_score or count < 4:
                     new_behaviour[b] = score
-        #    self.knowledge.replace_behaviour(new_behaviour)
+            self.knowledge.replace_behaviour(new_behaviour)
 
         #    self.behaviour = self.knowledge.behaviour.iteritems()
 
