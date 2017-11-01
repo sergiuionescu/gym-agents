@@ -33,7 +33,7 @@ max_attempts = args.attempts
 render = args.render
 env = gym.make(environment)
 
-statsd = statsd.StatsClient('localhost', 8125, prefix='agents')
+statsd = statsd.StatsClient('localhost', 8125, prefix='agents', maxudpsize=1024)
 
 gym.scoreboard.api_key = "sk_MXIkB1v6Shebbl5pMWtTA"
 outdir = '/tmp/cem-agent-results'
