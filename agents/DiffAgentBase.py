@@ -27,6 +27,8 @@ class DiffAgentBase(object):
                 count += 1;
                 if score >= average_score or count <= self.working_behaviour_size:
                     new_behaviour[b] = score
+                else:
+                    break
             self.behaviour = new_behaviour.iteritems()
 
         #    self.behaviour = self.knowledge.behaviour.iteritems()
