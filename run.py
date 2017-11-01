@@ -53,7 +53,7 @@ for agent_position in range(max_agents):
     agent = world.get_agent(agent_position, env.action_space)
     for episodes in range(max_episodes):
         agent.experience.reset_attempts()
-        agent.wake()
+        agent.reset_behaviour()
         for t in range(max_attempts):
             time.sleep(sleep)
             action = agent.act(observation)

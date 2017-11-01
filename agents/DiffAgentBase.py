@@ -5,6 +5,7 @@ class DiffAgentBase(object):
     current_prediction = []
     name = ''
     behaviour = None
+    working_behaviour_size = 2
 
     def __init__(self, experience, knowledge, space):
 
@@ -13,7 +14,7 @@ class DiffAgentBase(object):
         self.knowledge = knowledge
         self.prediction()
 
-    def wake(self):
+    def reset_behaviour(self):
 
         total_score = 0
         count = 0
@@ -24,9 +25,9 @@ class DiffAgentBase(object):
             new_behaviour = {}
             for b, score in self.knowledge.behaviour.iteritems():
                 count += 1;
-                if score >= average_score or count < 4:
+                if score >= average_score or count <= self.working_behaviour_size:
                     new_behaviour[b] = score
-            self.knowledge.replace_behaviour(new_behaviour)
+            self.behaviour = new_behaviour.iteritems()
 
         #    self.behaviour = self.knowledge.behaviour.iteritems()
 

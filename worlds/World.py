@@ -48,7 +48,7 @@ class World(object):
                 agent_paths.sort(reverse=True)
                 for agent_path in agent_paths:
                     agent = pickle.load(open(os.path.join(path, agent_path), 'r'))
-                    agent.wake()
+                    agent.reset_behaviour()
                     self.population[self.population.__len__()] = agent
 
     def sleep(self):

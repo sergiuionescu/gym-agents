@@ -16,7 +16,7 @@ class DiffAgentKnowledgeable(DiffAgentBase):
                 self.noise_reduction = list(behaviour[1])
                 return
         except StopIteration:
-            self.behaviour = self.knowledge.behaviour.iteritems()
+            self.reset_behaviour()
         self.random_prediction()
 
     def random_prediction(self):
@@ -53,7 +53,7 @@ class DiffAgentKnowledgeable(DiffAgentBase):
         if reward > 0:
             if reward > self.last_reward:
                 if not self.behaviour:
-                    self.behaviour = self.knowledge.behaviour.iteritems()
+                    self.reset_behaviour()
         else:
             self.prediction()
         self.last_reward = reward
