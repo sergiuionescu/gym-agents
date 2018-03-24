@@ -1,9 +1,8 @@
 import numpy as np
 
-from agents import DiffAgentBase
+from . import DiffAgentBase
 
-
-class DiffAgentSpeculative(DiffAgentBase):
+class DiffAgentSpeculative(DiffAgentBase.DiffAgentBase):
 
     def prediction(self):
         self.diff = np.random.randint(0, self.space.spaces[2].n)

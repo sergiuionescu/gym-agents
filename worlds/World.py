@@ -1,12 +1,12 @@
 import os
 import random
-import cPickle as pickle
+import _pickle as pickle
 
-from agents import DiffAgentSpeculative
-from agents import DiffAgent
-from agents import DiffAgentKnowledgeable
-from agents import Experience
-from agents import Knowledge
+from agents.DiffAgentSpeculative import DiffAgentSpeculative
+from agents.DiffAgent import DiffAgent
+from agents.DiffAgentKnowledgeable import DiffAgentKnowledgeable
+from agents.Experience import Experience
+from agents.Knowledge import Knowledge
 
 
 class World(object):
@@ -34,7 +34,7 @@ class World(object):
 
         class_map = {"DiffAgentSpeculative": DiffAgentSpeculative, "DiffAgent": DiffAgent, "DiffAgentKnowledgeable": DiffAgentKnowledgeable}
         agent = class_map[self.agent_class](experience, knowledge, action_space)
-        agent.name = random.choice(self.names)
+        agent.name = random.choice(list(self.names))
         self.population[self.population.__len__()] = agent
 
         return agent
@@ -58,8 +58,7 @@ class World(object):
 
         for key, agent in self.population.items():
             agent.sleep()
-            pickle.dump(agent,
-                        open(os.path.join(path, agent.name + '.pcl'), 'w'))
+            pickle.dump(agent, open(os.path.join(path, agent.name + '.pcl'), 'wb'))
                         # open(os.path.join(path, str(agent.experience.total_reward) + '.' + agent.name + '.pcl'), 'w'))
 
     def get_path(self):

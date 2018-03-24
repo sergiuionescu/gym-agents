@@ -3,7 +3,7 @@ import numpy as np
 from agents import DiffAgentBase
 
 
-class DiffAgentKnowledgeable(DiffAgentBase):
+class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
     last_reward = 0
     previous_diff = []
     reward_streak = 0
@@ -11,7 +11,7 @@ class DiffAgentKnowledgeable(DiffAgentBase):
     def prediction(self):
         try:
             if self.behaviour:
-                behaviour = list(self.behaviour.next()[0])
+                behaviour = list(next(iter(self.behaviour))[0])
                 self.diff = list(behaviour[0])
                 self.noise_reduction = list(behaviour[1])
                 return

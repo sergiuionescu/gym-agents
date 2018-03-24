@@ -3,7 +3,7 @@ import numpy as np
 from agents import DiffAgentBase
 
 
-class DiffAgent(DiffAgentBase):
+class DiffAgent(DiffAgentBase.DiffAgentBase):
 
     def prediction(self):
         self.diff = []

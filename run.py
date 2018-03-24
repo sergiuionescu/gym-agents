@@ -8,7 +8,7 @@ import statsd
 import argparse
 import time
 
-from worlds import World
+import worlds.World
 
 
 parser = argparse.ArgumentParser(description="Launches worlds")
@@ -44,7 +44,7 @@ logger.setLevel(logging.INFO)
 
 np.random.seed(0)
 
-world = World(environment, agent_class)
+world = worlds.World.World(environment, agent_class)
 world.wake(world_name)
 
 found = False
