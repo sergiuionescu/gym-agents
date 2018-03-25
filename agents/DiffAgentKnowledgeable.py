@@ -28,7 +28,10 @@ class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
         self.random_prediction()
 
     def random_distribution_behaviour(self):
-        behaviour = list(next(iter(self.behaviour))[0])
+        elems = tf.convert_to_tensor(list(self.knowledge.behaviour.keys()))
+        samples = tf.multinomial(tf.log([list(self.knowledge.behaviour.values())]), 1)
+        behaviour = elems[tf.cast(samples[0][0], tf.int32)].eval(session=self.session)
+
         self.diff = list(behaviour[0])
         self.noise_reduction = list(behaviour[1])
 

@@ -10,11 +10,12 @@ class Knowledge(object):
             self.behaviour[behaviour] += reaward
         else:
             self.behaviour[behaviour] = reaward
-        self.behaviour = OrderedDict(sorted(self.behaviour.items(), key=lambda x: x[1], reverse=True))
 
-    def replace_behaviour(self, behaviour):
-        """
-
-        :type behaviour: OrderedDict
-        """
-        self.behaviour = self.behaviour = OrderedDict(sorted(behaviour.items(), key=lambda x: x[1], reverse=True))
+    def show_top_behaviour(self):
+        top_behaviour = OrderedDict(sorted(self.behaviour.items(), key=lambda x: x[1], reverse=True))
+        max = 3
+        for key, value in top_behaviour.items():
+            print("Action:" + str(key) + " Score:" + str(value))
+            max -= 1
+            if (max == 0):
+                break

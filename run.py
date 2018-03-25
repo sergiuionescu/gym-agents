@@ -44,7 +44,7 @@ np.random.seed(0)
 
 
 observation = env.reset()
-with tf.Session() as sess:
+with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
     world = worlds.World.World(environment, agent_class)
     world.wake(world_name)
 
@@ -59,7 +59,7 @@ with tf.Session() as sess:
             time.sleep(sleep)
             action = agent.act(observation)
             observation, reward, done, info = env.step(action)
-            if render:
+            if render and episodes%50 == 0:
                 env.render()
 
             agent.add_reward(reward)
@@ -72,12 +72,13 @@ with tf.Session() as sess:
                 found = True
                 print("Episode finished after {} timesteps".format(t + 1))
                 break
-        print(str(episodes) + "-" + str(agent.experience.get_avg_success_rate()))
+        print(str(episodes) + "-" + str(agent.experience.get_avg_success_rate()) + "/" + str(len(agent.knowledge.behaviour)))
+        agent.knowledge.show_top_behaviour()
         if not found:
             break
         observation = env.reset()
 
-print(agent.knowledge.behaviour);
+agent.knowledge.show_top_behaviour()
 
 def writefile(fname, s):
     with open(os.path.join(outdir, fname), 'w') as fh: fh.write(s)
