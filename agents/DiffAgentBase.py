@@ -6,6 +6,7 @@ class DiffAgentBase(object):
     name = ''
     behaviour = None
     working_behaviour_size = 2
+    session = None
 
     def __init__(self, experience, knowledge, space):
 
@@ -35,3 +36,7 @@ class DiffAgentBase(object):
 
     def sleep(self):
         self.behaviour = None
+        self.session = None
+
+    def set_session(self, session):
+        self.session = session

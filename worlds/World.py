@@ -23,8 +23,8 @@ class World(object):
         with open(os.path.join('data', 'people.txt')) as f:
             self.names = map(lambda s: s.strip(), f.readlines())
 
-    def get_agent(self, agent_position, action_space):
-        next_agent = self.population[agent_position] if agent_position in self.population else self.birth(action_space)
+    def get_agent(self, action_space):
+        next_agent = self.birth(action_space)
 
         return next_agent
 
@@ -47,7 +47,7 @@ class World(object):
                 agent_paths = os.listdir(path)
                 agent_paths.sort(reverse=True)
                 for agent_path in agent_paths:
-                    agent = pickle.load(open(os.path.join(path, agent_path), 'r'))
+                    agent = pickle.load(open(os.path.join(path, agent_path), 'rb'))
                     agent.reset_behaviour()
                     self.population[self.population.__len__()] = agent
 
@@ -59,7 +59,6 @@ class World(object):
         for key, agent in self.population.items():
             agent.sleep()
             pickle.dump(agent, open(os.path.join(path, agent.name + '.pcl'), 'wb'))
-                        # open(os.path.join(path, str(agent.experience.total_reward) + '.' + agent.name + '.pcl'), 'w'))
 
     def get_path(self):
         return os.path.join('rem', self.environment, self.name)

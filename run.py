@@ -1,12 +1,12 @@
 import gym
 from gym import wrappers
 import numpy as np
-import json
 import os
 import logging
 import statsd
 import argparse
 import time
+import tensorflow as tf
 
 import worlds.World
 
@@ -17,7 +17,6 @@ parser.add_argument('--agent_class', nargs="?", default="DiffAgentKnowledgeable"
 parser.add_argument('--world', nargs="?", default="")
 parser.add_argument('--sleep', nargs="?", default=0, type=float)
 parser.add_argument('--episodes', nargs="?", default=1000, type=int)
-parser.add_argument('--agents', nargs="?", default=1, type=int)
 parser.add_argument('--attempts', nargs="?", default=100, type=int)
 parser.add_argument('--render', nargs="?", default=1, type=int)
 
@@ -28,7 +27,6 @@ world_name = args.world
 sleep = args.sleep
 agent_class = args.agent_class
 max_episodes = args.episodes
-max_agents = args.agents
 max_attempts = args.attempts
 render = args.render
 env = gym.make(environment)
@@ -44,13 +42,16 @@ logger.setLevel(logging.INFO)
 
 np.random.seed(0)
 
-world = worlds.World.World(environment, agent_class)
-world.wake(world_name)
 
-found = False
-for agent_position in range(max_agents):
-    observation = env.reset()
-    agent = world.get_agent(agent_position, env.action_space)
+observation = env.reset()
+with tf.Session() as sess:
+    world = worlds.World.World(environment, agent_class)
+    world.wake(world_name)
+
+    found = False
+
+    agent = world.get_agent(env.action_space)
+    agent.set_session(sess)
     for episodes in range(max_episodes):
         agent.experience.reset_attempts()
         agent.reset_behaviour()
@@ -71,21 +72,17 @@ for agent_position in range(max_agents):
                 found = True
                 print("Episode finished after {} timesteps".format(t + 1))
                 break
+        print(str(episodes) + "-" + str(agent.experience.get_avg_success_rate()))
         if not found:
             break
         observation = env.reset()
 
+print(agent.knowledge.behaviour);
 
 def writefile(fname, s):
     with open(os.path.join(outdir, fname), 'w') as fh: fh.write(s)
 
-
-writefile('info.json', json.dumps(info))
-
 env.close()
+sess.close()
 
 world.sleep()
-
-logger.info(
-    "Successfully ran cross-entropy method. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
-#gym.upload(outdir)

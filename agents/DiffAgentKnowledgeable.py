@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 
 from agents import DiffAgentBase
 
@@ -7,17 +8,29 @@ class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
     last_reward = 0
     previous_diff = []
     reward_streak = 0
+    learning_rate = 0.01
 
     def prediction(self):
         try:
             if self.behaviour:
-                behaviour = list(next(iter(self.behaviour))[0])
-                self.diff = list(behaviour[0])
-                self.noise_reduction = list(behaviour[1])
+                elems = tf.convert_to_tensor([0, 1])
+                samples = tf.multinomial(tf.log([[self.learning_rate, 1 - self.learning_rate]]), 1)
+                explore = elems[tf.cast(samples[0][0], tf.int32)].eval(session=self.session)
+
+                if explore:
+                    self.random_prediction()
+                    return
+
+                self.random_distribution_behaviour()
                 return
         except StopIteration:
             self.reset_behaviour()
         self.random_prediction()
+
+    def random_distribution_behaviour(self):
+        behaviour = list(next(iter(self.behaviour))[0])
+        self.diff = list(behaviour[0])
+        self.noise_reduction = list(behaviour[1])
 
     def random_prediction(self):
         self.diff = []
