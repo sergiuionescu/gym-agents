@@ -16,7 +16,7 @@ parser.add_argument('--env', nargs="?", default="RepeatCopy-v0")
 parser.add_argument('--agent_class', nargs="?", default="DiffAgentKnowledgeable")
 parser.add_argument('--world', nargs="?", default="")
 parser.add_argument('--sleep', nargs="?", default=0, type=float)
-parser.add_argument('--episodes', nargs="?", default=1000, type=int)
+parser.add_argument('--episodes', nargs="?", default=200, type=int)
 parser.add_argument('--attempts', nargs="?", default=100, type=int)
 parser.add_argument('--render', nargs="?", default=1, type=int)
 
@@ -61,6 +61,7 @@ with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
             observation, reward, done, info = env.step(action)
             if render and episodes%50 == 0:
                 env.render()
+                time.sleep(2)
 
             agent.add_reward(reward)
 

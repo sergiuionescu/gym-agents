@@ -8,23 +8,21 @@ class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
     last_reward = 0
     previous_diff = []
     reward_streak = 0
-    learning_rate = 0.01
+    initial_learning_rate = 0.1
 
     def prediction(self):
-        try:
-            if self.behaviour:
-                elems = tf.convert_to_tensor([0, 1])
-                samples = tf.multinomial(tf.log([[self.learning_rate, 1 - self.learning_rate]]), 1)
-                explore = elems[tf.cast(samples[0][0], tf.int32)].eval(session=self.session)
+        if self.behaviour:
+            learning_rate = self.get_learning_rate()
+            elems = tf.convert_to_tensor([0, 1])
+            samples = tf.multinomial(tf.log([[learning_rate, 1 - learning_rate]]), 1)
+            explore = elems[tf.cast(samples[0][0], tf.int32)].eval(session=self.session)
 
-                if explore:
-                    self.random_prediction()
-                    return
-
-                self.random_distribution_behaviour()
+            if explore:
+                self.random_prediction()
                 return
-        except StopIteration:
-            self.reset_behaviour()
+
+            self.random_distribution_behaviour()
+            return
         self.random_prediction()
 
     def random_distribution_behaviour(self):
@@ -77,5 +75,9 @@ class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
         self.experience.add_reward(reward)
         self.experience.success += reward > 0
         self.experience.total_success += reward > 0
+
+    def get_learning_rate(self):
+        success_rate = self.experience.get_avg_success_rate()
+        return success_rate if success_rate > 0 else self.initial_learning_rate
 
 
