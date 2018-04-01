@@ -7,27 +7,28 @@ import statsd
 import argparse
 import time
 import tensorflow as tf
+from dotenv import load_dotenv
+from pathlib import Path
 
 import worlds.World
 
 parser = argparse.ArgumentParser(description="Launches worlds")
-parser.add_argument('--env', nargs="?", default="Copy-v0")
-parser.add_argument('--agent_class', nargs="?", default="AgentKnowledgeable")
-parser.add_argument('--world', nargs="?", default="")
-parser.add_argument('--sleep', nargs="?", default=0, type=float)
-parser.add_argument('--episodes', nargs="?", default=200, type=int)
-parser.add_argument('--attempts', nargs="?", default=100, type=int)
-parser.add_argument('--render', nargs="?", default=1, type=int)
+parser.add_argument('--config', nargs="?", default=".env")
+
+args = parser.parse_args()
+load_dotenv(Path('.') / args.config)
 
 args = parser.parse_args()
 
-environment = args.env
-world_name = args.world
-sleep = args.sleep
-agent_class = args.agent_class
-max_episodes = args.episodes
-max_attempts = args.attempts
-render = args.render
+environment = os.getenv("ENV")
+agent_class = os.getenv("AGENT")
+world_name = os.getenv("WORLD")
+sleep = int(os.getenv("SLEEP"))
+max_episodes = int(os.getenv("MAX_EPISODES"))
+max_attempts = int(os.getenv("MAX_ATTEMPTS"))
+render_each = int(os.getenv("RENDER_EACH"))
+use_gpu = int(os.getenv("USE_GPU"))
+save_agent = int(os.getenv("SAVE_AGENT"))
 env = gym.make(environment)
 
 statsd = statsd.StatsClient('localhost', 8125, prefix='agents', maxudpsize=1024)
@@ -42,9 +43,9 @@ logger.setLevel(logging.INFO)
 np.random.seed(0)
 
 observation = env.reset()
+config = tf.ConfigProto() if use_gpu else tf.ConfigProto(device_count={'GPU': 0})
 with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
-    world = worlds.World.World(environment, agent_class)
-    world.wake(world_name, observation)
+    world = worlds.World.World(environment, agent_class, world_name)
 
     found = False
 
@@ -57,7 +58,7 @@ with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
             time.sleep(sleep)
             action = agent.act(observation)
             new_observation, reward, done, info = env.step(action)
-            if render and episodes % 50 == 0:
+            if episodes % render_each == 0:
                 env.render()
                 time.sleep(2)
 
@@ -73,10 +74,11 @@ with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
                 found = True
                 print("Episode finished after {} timesteps".format(t + 1))
                 break
-        information = agent.knowledge.get_information(observation)
-        print(str(episodes) + "-" + str(agent.experience.get_avg_success_rate()) + "/" + str(
-            len(information.behaviour)))
-        information.show_top_behaviour()
+        if episodes % render_each == 0:
+            information = agent.knowledge.get_information(observation)
+            print(str(episodes) + "-" + str(agent.experience.get_avg_success_rate()) + "/" + str(
+                len(information.behaviour)))
+            information.show_top_behaviour()
         if not found:
             break
         observation = env.reset()
@@ -91,4 +93,5 @@ def writefile(fname, s):
 env.close()
 sess.close()
 
-world.sleep()
+if save_agent:
+    world.sleep()

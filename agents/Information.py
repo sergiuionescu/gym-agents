@@ -2,8 +2,10 @@ from collections import OrderedDict
 
 
 class Information(object):
-    behaviour = {}
-    cursor = 0
+    def __init__(self):
+        self.behaviour = {}
+        self.cursor = 0
+
 
     def add_behaviour(self, behaviour, reward):
         if behaviour in self.behaviour:

@@ -2,13 +2,18 @@ from agents.Information import Information
 
 
 class Knowledge(object):
-    knowledge = {}
+
+    def __init__(self):
+        self.knowledge = {}
 
     def add_information(self, observation, information):
         self.knowledge[observation] = information
 
     def get_information(self, observation) -> Information:
-        return self.knowledge[observation] if observation in self.knowledge else Information()
+        if observation in self.knowledge.keys():
+            return self.knowledge[observation]
+        else:
+            return Information()
 
     def show_summary(self):
         for key in self.knowledge:

@@ -11,21 +11,24 @@ from agents.Knowledge import Knowledge
 
 
 class World(object):
-    def __init__(self, environment, agent_class):
+    def __init__(self, environment, agent_class, name):
         self.population = {}
         self.environment = environment
         self.agent_class = agent_class
+        self.name = name
 
-        with open(os.path.join('data', 'worlds.txt'), 'r') as f:
-            data = f.readline()
-            names = data.split(',')
-            self.name = random.choice(names)
+        if not name:
+            with open(os.path.join('data', 'worlds.txt'), 'r') as f:
+                data = f.readline()
+                names = data.split(',')
+                self.name = random.choice(names)
 
         with open(os.path.join('data', 'people.txt')) as f:
             self.names = map(lambda s: s.strip(), f.readlines())
 
     def get_agent(self, action_space, observation):
-        next_agent = self.birth(action_space, observation)
+        sleeper_agent = self.wake(observation)
+        next_agent = sleeper_agent if sleeper_agent else self.birth(action_space, observation)
 
         return next_agent
 
@@ -41,17 +44,17 @@ class World(object):
 
         return agent
 
-    def wake(self, name, observation):
-        if name:
-            self.name = name
-            path = self.get_path()
-            if os.path.exists(path):
-                agent_paths = os.listdir(path)
-                agent_paths.sort(reverse=True)
-                for agent_path in agent_paths:
-                    agent = pickle.load(open(os.path.join(path, agent_path), 'rb'))
-                    agent.reset_behaviour(observation)
-                    self.population[self.population.__len__()] = agent
+    def wake(self, observation):
+        path = self.get_path()
+        if os.path.exists(path):
+            agent_paths = os.listdir(path)
+            agent_paths.sort(reverse=True)
+            for agent_path in agent_paths:
+                with open(os.path.join(path, agent_path), 'rb') as f:
+                    agent = pickle.load(f)
+                agent.reset_behaviour(observation)
+                self.population[self.population.__len__()] = agent
+                return agent
 
     def sleep(self):
         path = self.get_path()
@@ -60,7 +63,8 @@ class World(object):
 
         for key, agent in self.population.items():
             agent.sleep()
-            pickle.dump(agent, open(os.path.join(path, agent.name + '.pcl'), 'wb'))
+            with open(os.path.join(path, agent.name + '.pcl'), 'wb') as f:
+                pickle.dump(agent, f)
 
     def get_path(self):
         return os.path.join('rem', self.environment, self.name)
