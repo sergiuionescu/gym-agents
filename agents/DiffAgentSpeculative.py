@@ -2,6 +2,7 @@ import numpy as np
 
 from . import DiffAgentBase
 
+
 class DiffAgentSpeculative(DiffAgentBase.DiffAgentBase):
 
     def prediction(self):

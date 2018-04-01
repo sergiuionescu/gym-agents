@@ -1,4 +1,7 @@
-class DiffAgentBase(object):
+from agents.Agent import Agent
+
+
+class DiffAgentBase(Agent):
     diff = []
     noise_reduction = []
     latest_observation = 0

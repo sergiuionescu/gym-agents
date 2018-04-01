@@ -5,6 +5,7 @@ import _pickle as pickle
 from agents.DiffAgentSpeculative import DiffAgentSpeculative
 from agents.DiffAgent import DiffAgent
 from agents.DiffAgentKnowledgeable import DiffAgentKnowledgeable
+from agents.AgentKnowledgeable import AgentKnowledgeable
 from agents.Experience import Experience
 from agents.Knowledge import Knowledge
 
@@ -33,7 +34,7 @@ class World(object):
         experience = Experience()
 
         class_map = {"DiffAgentSpeculative": DiffAgentSpeculative, "DiffAgent": DiffAgent,
-                     "DiffAgentKnowledgeable": DiffAgentKnowledgeable}
+                     "DiffAgentKnowledgeable": DiffAgentKnowledgeable, "AgentKnowledgeable": AgentKnowledgeable}
         agent = class_map[self.agent_class](experience, knowledge, action_space, observation)
         agent.name = random.choice(list(self.names))
         self.population[self.population.__len__()] = agent

@@ -12,7 +12,7 @@ import worlds.World
 
 parser = argparse.ArgumentParser(description="Launches worlds")
 parser.add_argument('--env', nargs="?", default="Copy-v0")
-parser.add_argument('--agent_class', nargs="?", default="DiffAgentKnowledgeable")
+parser.add_argument('--agent_class', nargs="?", default="AgentKnowledgeable")
 parser.add_argument('--world', nargs="?", default="")
 parser.add_argument('--sleep', nargs="?", default=0, type=float)
 parser.add_argument('--episodes', nargs="?", default=200, type=int)
@@ -57,7 +57,7 @@ with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
             time.sleep(sleep)
             action = agent.act(observation)
             new_observation, reward, done, info = env.step(action)
-            if render and episodes % 200 == 0:
+            if render and episodes % 50 == 0:
                 env.render()
                 time.sleep(2)
 
