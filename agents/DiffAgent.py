@@ -21,10 +21,10 @@ class DiffAgent(DiffAgentBase.DiffAgentBase):
 
         return self.current_prediction
 
-    def add_reward(self, reward):
+    def add_reward(self, observation, reward):
         if reward <= 0:
             self.prediction()
 
-        self.experience.add_reward(reward)
+        self.experience.add_reward(observation, reward)
         self.experience.success += reward > 0
         self.experience.total_success += reward > 0

@@ -1,21 +1,16 @@
-from collections import OrderedDict
+from agents.Information import Information
 
 
 class Knowledge(object):
-    behaviour = {}
-    cursor = 0
+    knowledge = {}
 
-    def add_behaviour(self, behaviour, reaward):
-        if behaviour in self.behaviour:
-            self.behaviour[behaviour] += reaward
-        else:
-            self.behaviour[behaviour] = reaward
+    def add_information(self, observation, information):
+        self.knowledge[observation] = information
 
-    def show_top_behaviour(self):
-        top_behaviour = OrderedDict(sorted(self.behaviour.items(), key=lambda x: x[1], reverse=True))
-        max = 3
-        for key, value in top_behaviour.items():
-            print("Action:" + str(key) + " Score:" + str(value))
-            max -= 1
-            if (max == 0):
-                break
+    def get_information(self, observation) -> Information:
+        return self.knowledge[observation] if observation in self.knowledge else Information()
+
+    def show_summary(self):
+        for key in self.knowledge:
+            print('***' + str(key) + '***')
+            self.knowledge[key].show_top_behaviour()

@@ -23,23 +23,24 @@ class World(object):
         with open(os.path.join('data', 'people.txt')) as f:
             self.names = map(lambda s: s.strip(), f.readlines())
 
-    def get_agent(self, action_space):
-        next_agent = self.birth(action_space)
+    def get_agent(self, action_space, observation):
+        next_agent = self.birth(action_space, observation)
 
         return next_agent
 
-    def birth(self, action_space):
+    def birth(self, action_space, observation):
         knowledge = Knowledge()
         experience = Experience()
 
-        class_map = {"DiffAgentSpeculative": DiffAgentSpeculative, "DiffAgent": DiffAgent, "DiffAgentKnowledgeable": DiffAgentKnowledgeable}
-        agent = class_map[self.agent_class](experience, knowledge, action_space)
+        class_map = {"DiffAgentSpeculative": DiffAgentSpeculative, "DiffAgent": DiffAgent,
+                     "DiffAgentKnowledgeable": DiffAgentKnowledgeable}
+        agent = class_map[self.agent_class](experience, knowledge, action_space, observation)
         agent.name = random.choice(list(self.names))
         self.population[self.population.__len__()] = agent
 
         return agent
 
-    def wake(self, name):
+    def wake(self, name, observation):
         if name:
             self.name = name
             path = self.get_path()
@@ -48,7 +49,7 @@ class World(object):
                 agent_paths.sort(reverse=True)
                 for agent_path in agent_paths:
                     agent = pickle.load(open(os.path.join(path, agent_path), 'rb'))
-                    agent.reset_behaviour()
+                    agent.reset_behaviour(observation)
                     self.population[self.population.__len__()] = agent
 
     def sleep(self):

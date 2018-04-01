@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 from agents import DiffAgentBase
+from agents.Information import  Information
 
 
 class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
@@ -10,7 +11,7 @@ class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
     reward_streak = 0
     initial_learning_rate = 0.1
 
-    def prediction(self):
+    def prediction(self, observation):
         if self.behaviour:
             learning_rate = self.get_learning_rate()
             elems = tf.convert_to_tensor([0, 1])
@@ -21,14 +22,20 @@ class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
                 self.random_prediction()
                 return
 
-            self.random_distribution_behaviour()
+            self.random_distribution_behaviour(observation)
             return
         self.random_prediction()
 
-    def random_distribution_behaviour(self):
-        elems = tf.convert_to_tensor(list(self.knowledge.behaviour.keys()))
-        samples = tf.multinomial(tf.log([list(self.knowledge.behaviour.values())]), 1)
-        behaviour = elems[tf.cast(samples[0][0], tf.int32)].eval(session=self.session)
+    def random_distribution_behaviour(self, observation):
+        information = self.knowledge.get_information(observation)
+        elems = tf.convert_to_tensor(list(information.behaviour.keys()))
+        samples = tf.multinomial(tf.log([list(information.behaviour.values())]), 1)
+        try:
+            behaviour = elems[tf.cast(samples[0][0], tf.int32)].eval(session=self.session)
+        except:
+            a=1
+
+
 
         self.diff = list(behaviour[0])
         self.noise_reduction = list(behaviour[1])
@@ -50,7 +57,7 @@ class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
 
         return self.current_prediction
 
-    def add_reward(self, reward):
+    def add_reward(self, observation,  reward):
         if self.diff == self.previous_diff and reward > 0:
             self.reward_streak += 1
             perceived_reward = 10 * reward
@@ -63,13 +70,17 @@ class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
 
         self.previous_diff = self.diff
 
-        self.knowledge.add_behaviour(tuple([tuple(self.diff), tuple(self.noise_reduction)]), perceived_reward)
+        behaviour = tuple([tuple(self.diff), tuple(self.noise_reduction)])
+        information = self.knowledge.get_information(observation)
+        information.add_behaviour(behaviour, perceived_reward)
+
+        self.knowledge.add_information(observation, information)
         if reward > 0:
             if reward > self.last_reward:
                 if not self.behaviour:
-                    self.reset_behaviour()
+                    self.reset_behaviour(observation)
         else:
-            self.prediction()
+            self.prediction(observation)
         self.last_reward = reward
 
         self.experience.add_reward(reward)

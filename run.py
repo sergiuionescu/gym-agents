@@ -10,9 +10,8 @@ import tensorflow as tf
 
 import worlds.World
 
-
 parser = argparse.ArgumentParser(description="Launches worlds")
-parser.add_argument('--env', nargs="?", default="RepeatCopy-v0")
+parser.add_argument('--env', nargs="?", default="Copy-v0")
 parser.add_argument('--agent_class', nargs="?", default="DiffAgentKnowledgeable")
 parser.add_argument('--world', nargs="?", default="")
 parser.add_argument('--sleep', nargs="?", default=0, type=float)
@@ -42,47 +41,52 @@ logger.setLevel(logging.INFO)
 
 np.random.seed(0)
 
-
 observation = env.reset()
 with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
     world = worlds.World.World(environment, agent_class)
-    world.wake(world_name)
+    world.wake(world_name, observation)
 
     found = False
 
-    agent = world.get_agent(env.action_space)
+    agent = world.get_agent(env.action_space, observation)
     agent.set_session(sess)
     for episodes in range(max_episodes):
         agent.experience.reset_attempts()
-        agent.reset_behaviour()
+        agent.reset_behaviour(observation)
         for t in range(max_attempts):
             time.sleep(sleep)
             action = agent.act(observation)
-            observation, reward, done, info = env.step(action)
-            if render and episodes%50 == 0:
+            new_observation, reward, done, info = env.step(action)
+            if render and episodes % 200 == 0:
                 env.render()
                 time.sleep(2)
 
-            agent.add_reward(reward)
+            agent.add_reward(observation, reward)
+            observation = new_observation
 
             statsd.set(world.name + '.' + agent.name, agent.experience.total_reward)
             statsd.gauge(world.name + '.' + agent.name + '.' + 'success_rate', agent.experience.get_success_rate())
-            statsd.gauge(world.name + '.' + agent.name + '.' + 'avg_success_rate', agent.experience.get_avg_success_rate())
+            statsd.gauge(world.name + '.' + agent.name + '.' + 'avg_success_rate',
+                         agent.experience.get_avg_success_rate())
 
             if done:
                 found = True
                 print("Episode finished after {} timesteps".format(t + 1))
                 break
-        print(str(episodes) + "-" + str(agent.experience.get_avg_success_rate()) + "/" + str(len(agent.knowledge.behaviour)))
-        agent.knowledge.show_top_behaviour()
+        information = agent.knowledge.get_information(observation)
+        print(str(episodes) + "-" + str(agent.experience.get_avg_success_rate()) + "/" + str(
+            len(information.behaviour)))
+        information.show_top_behaviour()
         if not found:
             break
         observation = env.reset()
 
-agent.knowledge.show_top_behaviour()
+agent.knowledge.show_summary()
+
 
 def writefile(fname, s):
     with open(os.path.join(outdir, fname), 'w') as fh: fh.write(s)
+
 
 env.close()
 sess.close()

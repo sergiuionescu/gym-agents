@@ -8,31 +8,30 @@ class DiffAgentBase(object):
     working_behaviour_size = 2
     session = None
 
-    def __init__(self, experience, knowledge, space):
+    def __init__(self, experience, knowledge, space, observation):
 
         self.space = space
         self.experience = experience
         self.knowledge = knowledge
-        self.prediction()
+        self.prediction(observation)
 
-    def reset_behaviour(self):
+    def reset_behaviour(self, observation):
 
         total_score = 0
         count = 0
-        if len(self.knowledge.behaviour) > 0:
-            for b, score in self.knowledge.behaviour.items():
+        information = self.knowledge.get_information(observation)
+        if len(information.behaviour) > 0:
+            for b, score in information.behaviour.items():
                 total_score += score
-            average_score = total_score / len(self.knowledge.behaviour)
+            average_score = total_score / len(information.behaviour)
             new_behaviour = {}
-            for b, score in self.knowledge.behaviour.items():
-                count += 1;
+            for b, score in information.behaviour.items():
+                count += 1
                 if score >= average_score or count <= self.working_behaviour_size:
                     new_behaviour[b] = score
                 else:
                     break
             self.behaviour = new_behaviour.items()
-
-        #    self.behaviour = self.knowledge.behaviour.iteritems()
 
     def sleep(self):
         self.behaviour = None
