@@ -53,9 +53,7 @@ class AgentKnowledgeable(Agent):
         self.behaviour = list(behaviour)
 
     def random_prediction(self):
-        self.behaviour = []
-        for dimension in self.space.spaces:
-            self.behaviour.append(np.random.randint(0, dimension.n))
+        self.behaviour = self.space.sample()
 
     def act(self, ob):
         return self.behaviour
