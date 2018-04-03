@@ -1,4 +1,3 @@
-import numpy as np
 import tensorflow as tf
 
 from agents.Agent import Agent
@@ -10,7 +9,7 @@ class AgentKnowledgeable(Agent):
     name = ''
     session = None
     last_reward = 0
-    initial_learning_rate = 0.1
+    initial_learning_rate = 0.5
     behaviour = []
 
     def __init__(self, experience, knowledge, space, observation):
@@ -32,7 +31,7 @@ class AgentKnowledgeable(Agent):
         if self.knowledge.get_information(observation):
             learning_rate = self.get_learning_rate()
             elems = tf.convert_to_tensor([0, 1])
-            samples = tf.multinomial(tf.log([[learning_rate, 1 - learning_rate]]), 1)
+            samples = tf.multinomial([[learning_rate, 1 - learning_rate]], 1)
             explore = elems[tf.cast(samples[0][0], tf.int32)].eval(session=self.session)
 
             if explore:
@@ -46,7 +45,7 @@ class AgentKnowledgeable(Agent):
     def random_distribution_behaviour(self, observation):
         information = self.knowledge.get_information(observation)
         elems = tf.convert_to_tensor(list(information.behaviour.keys()))
-        samples = tf.multinomial(tf.log([list(information.behaviour.values())]), 1)
+        samples = tf.multinomial(tf.log_sigmoid([list(information.behaviour.values())]), 1)
 
         behaviour = elems[tf.cast(samples[0][0], tf.int32)].eval(session=self.session)
 
@@ -63,8 +62,8 @@ class AgentKnowledgeable(Agent):
         information.add_behaviour(tuple(self.behaviour), reward)
 
         self.knowledge.add_information(observation, information)
-        if reward <= 0:
-            self.prediction(observation)
+
+        self.prediction(observation)
         self.last_reward = reward
 
         self.experience.add_reward(reward)
@@ -73,4 +72,4 @@ class AgentKnowledgeable(Agent):
 
     def get_learning_rate(self):
         success_rate = self.experience.get_avg_success_rate()
-        return success_rate if success_rate > 0 else self.initial_learning_rate
+        return success_rate + self.initial_learning_rate

@@ -1,12 +1,11 @@
 class Experience(object):
-    attempts = 0
-    success = 0.0
-    reward = 0
-    total_attempts = 0
-    total_success = 0.0
-    total_reward = 0
-    success_rate = 0
-    avg_success_rate = 0
+    def __init__(self):
+        self.attempts = 0
+        self.success = 0.0
+        self.reward = 0
+        self.total_attempts = 0
+        self.total_success = 0.0
+        self.total_reward = 0
 
     def add_reward(self, reward):
         self.total_reward += reward
@@ -30,3 +29,15 @@ class Experience(object):
         if self.total_attempts == 0:
             return 0
         return self.total_success / self.total_attempts
+
+    def __add__(self, other):
+        result = Experience()
+        result.attempts = self.attempts + other.attempts
+        result.success = self.success + other.success
+        result.reward = self.reward + other.reward
+        result.total_attempts = self.total_attempts + other.total_attempts
+        result.total_success = self.total_success + other.total_success
+        result.total_reward = self.total_reward + other.total_reward
+
+        return result
+

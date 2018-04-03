@@ -50,21 +50,34 @@ class World(object):
             agent_paths = os.listdir(path)
             agent_paths.sort(reverse=True)
             for agent_path in agent_paths:
-                with open(os.path.join(path, agent_path), 'rb') as f:
-                    agent = pickle.load(f)
-                agent.reset_behaviour(observation)
-                self.population[self.population.__len__()] = agent
-                return agent
+                file_path = os.path.join(path, agent_path)
+                if os.path.isfile(file_path):
+                    with open(file_path, 'rb') as f:
+                        agent = pickle.load(f)
+                    agent.reset_behaviour(observation)
+                    self.population[self.population.__len__()] = agent
+                    return agent
 
     def sleep(self):
         path = self.get_path()
-        if not os.path.exists(path):
-            os.makedirs(path)
+        self.make_path(path)
 
         for key, agent in self.population.items():
             agent.sleep()
             with open(os.path.join(path, agent.name + '.pcl'), 'wb') as f:
                 pickle.dump(agent, f)
 
+            child_path = self.get_child_path(agent.name)
+            self.make_path(child_path)
+            with open(os.path.join(child_path, str(os.getpid()) + '.pcl'), 'wb') as f:
+                pickle.dump(agent, f)
+
+    def make_path(self, path):
+        if not os.path.exists(path):
+            os.makedirs(path)
+
     def get_path(self):
         return os.path.join('rem', self.environment, self.name)
+
+    def get_child_path(self, name):
+        return os.path.join(self.get_path(), name)

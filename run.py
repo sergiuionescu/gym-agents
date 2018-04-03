@@ -30,6 +30,7 @@ render_each = int(os.getenv("RENDER_EACH"))
 use_gpu = int(os.getenv("USE_GPU"))
 save_agent = int(os.getenv("SAVE_AGENT"))
 env = gym.make(environment)
+pid = os.getpid()
 
 statsd = statsd.StatsClient('localhost', 8125, prefix='agents', maxudpsize=1024)
 
@@ -44,7 +45,7 @@ np.random.seed(0)
 
 observation = env.reset()
 config = tf.ConfigProto() if use_gpu else tf.ConfigProto(device_count={'GPU': 0})
-with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
+with tf.Session(config=config) as sess:
     world = worlds.World.World(environment, agent_class, world_name)
 
     found = False
@@ -65,9 +66,9 @@ with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
             agent.add_reward(observation, reward)
             observation = new_observation
 
-            statsd.set(world.name + '.' + agent.name, agent.experience.total_reward)
-            statsd.gauge(world.name + '.' + agent.name + '.' + 'success_rate', agent.experience.get_success_rate())
-            statsd.gauge(world.name + '.' + agent.name + '.' + 'avg_success_rate',
+            statsd.set(world.name + '.' + agent.name + '(' + str(pid) + ')', agent.experience.total_reward)
+            statsd.gauge(world.name + '.' + agent.name + '(' + str(pid) + ')' + '.' + 'success_rate', agent.experience.get_success_rate())
+            statsd.gauge(world.name + '.' + agent.name + '(' + str(pid) + ')' + '.' + 'avg_success_rate',
                          agent.experience.get_avg_success_rate())
 
             if done:
