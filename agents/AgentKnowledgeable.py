@@ -1,6 +1,8 @@
 import tensorflow as tf
 
 from agents.Agent import Agent
+from agents.Experience import Experience
+from agents.PositiveBoostPerception import PositiveBoostPerception
 
 
 class AgentKnowledgeable(Agent):
@@ -8,7 +10,6 @@ class AgentKnowledgeable(Agent):
     current_prediction = []
     name = ''
     session = None
-    last_reward = 0
     initial_learning_rate = 0.5
     behaviour = []
 
@@ -22,49 +23,41 @@ class AgentKnowledgeable(Agent):
         pass
 
     def sleep(self):
-        pass
+        self.experience = Experience()
 
     def set_session(self, session):
         pass
 
     def prediction(self, observation):
+        self.behaviour = None
         if self.knowledge.get_information(observation):
             learning_rate = self.get_learning_rate()
             elems = tf.convert_to_tensor([0, 1])
-            samples = tf.multinomial([[learning_rate, 1 - learning_rate]], 1)
+            samples = tf.multinomial(tf.log([[learning_rate, 1 - learning_rate]]), 1)
             explore = elems[tf.cast(samples[0][0], tf.int32)].eval(session=self.session)
 
-            if explore:
-                self.random_prediction()
-                return
+            if not explore:
+                self.behaviour = self.knowledge.get_prediction(observation, self.session)
 
-            self.random_distribution_behaviour(observation)
-            return
-        self.random_prediction()
+        if not self.behaviour:
+            self.behaviour = self.random_prediction()
 
-    def random_distribution_behaviour(self, observation):
-        information = self.knowledge.get_information(observation)
-        elems = tf.convert_to_tensor(list(information.behaviour.keys()))
-        samples = tf.multinomial(tf.log_sigmoid([list(information.behaviour.values())]), 1)
-
-        behaviour = elems[tf.cast(samples[0][0], tf.int32)].eval(session=self.session)
-
-        self.behaviour = list(behaviour)
-
-    def random_prediction(self):
-        self.behaviour = self.space.sample()
-
-    def act(self, ob):
         return self.behaviour
 
+    def random_prediction(self):
+        return self.space.sample()
+
+    def act(self, ob):
+        return self.prediction(PositiveBoostPerception.get_perceived_observation(ob))
+
     def add_reward(self, observation, reward):
+        observation, reward = PositiveBoostPerception.get_perceived_reward(observation, reward)
         information = self.knowledge.get_information(observation)
         information.add_behaviour(tuple(self.behaviour), reward)
 
         self.knowledge.add_information(observation, information)
-
-        self.prediction(observation)
-        self.last_reward = reward
+        if reward <= 0:
+            self.knowledge.behaviour.pop(observation, None)
 
         self.experience.add_reward(reward)
         self.experience.success += reward > 0

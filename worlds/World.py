@@ -69,10 +69,11 @@ class World(object):
 
             child_path = self.get_child_path(agent.name)
             self.make_path(child_path)
-            with open(os.path.join(child_path, str(os.getpid()) + '.pcl'), 'wb') as f:
+            with open(os.path.join(child_path, '.pcl'), 'wb') as f:
                 pickle.dump(agent, f)
 
-    def make_path(self, path):
+    @staticmethod
+    def make_path(path):
         if not os.path.exists(path):
             os.makedirs(path)
 

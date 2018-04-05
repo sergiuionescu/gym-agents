@@ -5,7 +5,7 @@ from agents import DiffAgentBase
 
 class DiffAgent(DiffAgentBase.DiffAgentBase):
 
-    def prediction(self):
+    def prediction(self, observation):
         self.diff = []
         self.noise_reduction = []
         for dimension in self.space.spaces:

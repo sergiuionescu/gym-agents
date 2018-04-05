@@ -1,7 +1,4 @@
 class Agent(object):
-    
-    def random_distribution_behaviour(self, observation):
-        pass
 
     def random_prediction(self):
         pass

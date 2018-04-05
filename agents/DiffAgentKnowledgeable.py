@@ -1,5 +1,3 @@
-from abc import abstractmethod, ABCMeta
-
 import numpy as np
 import tensorflow as tf
 

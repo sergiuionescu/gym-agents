@@ -5,7 +5,7 @@ from . import DiffAgentBase
 
 class DiffAgentSpeculative(DiffAgentBase.DiffAgentBase):
 
-    def prediction(self):
+    def prediction(self, observation):
         self.diff = np.random.randint(0, self.space.spaces[2].n)
 
     def act(self, ob):
