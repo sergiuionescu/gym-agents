@@ -35,7 +35,7 @@ class Knowledge(object):
             information = self.get_information(observation)
             if information.behaviour:
                 elems = tf.convert_to_tensor(list(information.behaviour.keys()))
-                samples = tf.multinomial(tf.log([list(information.behaviour.values())]), 1)
+                samples = tf.multinomial(tf.log(tf.cast([list(information.behaviour.values())], tf.float32)), 1)
 
                 self.behaviour[observation] = list(elems[tf.cast(samples[0][0], tf.int32)].eval(session=sess))
             else:
