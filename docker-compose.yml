@@ -1,7 +1,13 @@
 version: '2'
 services:
+  python:
+    build: .
+    volumes:
+    - ./:/var/work/
+
   graphite:
     image: hopsoft/graphite-statsd
+    hostname: graphite
     restart: always
     ports:
       - '3001:80'

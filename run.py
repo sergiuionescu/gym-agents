@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(description="Launches worlds")
 parser.add_argument('--config', nargs="?", default=".env")
 
 args = parser.parse_args()
-load_dotenv(Path('.') / args.config)
+load_dotenv(str(Path('.') / args.config))
 
 args = parser.parse_args()
 
@@ -31,7 +31,7 @@ use_gpu = int(os.getenv("USE_GPU"))
 save_agent = int(os.getenv("SAVE_AGENT"))
 env = gym.make(environment)
 
-statsd = statsd.StatsClient('localhost', 8125, prefix='agents', maxudpsize=1024)
+statsd = statsd.StatsClient('graphite', 8125, prefix='agents', maxudpsize=1024)
 
 gym.scoreboard.api_key = "sk_MXIkB1v6Shebbl5pMWtTA"
 outdir = '/tmp/cem-agent-results'
@@ -64,9 +64,9 @@ with tf.Session(config=config) as sess:
             agent.add_reward(observation, reward)
             observation = new_observation
 
-            statsd.set(world.name + '.' + agent.name, agent.experience.total_reward)
-            statsd.gauge(world.name + '.' + agent.name + '.' + 'success_rate', agent.experience.get_success_rate())
-            statsd.gauge(world.name + '.' + agent.name + '.' + 'avg_success_rate',
+            statsd.set(environment + '.' + agent.name, agent.experience.total_reward)
+            statsd.gauge(environment + '.' + agent.name + '.' + 'success_rate', agent.experience.get_success_rate())
+            statsd.gauge(environment + '.' + agent.name + '.' + 'avg_success_rate',
                          agent.experience.get_avg_success_rate())
 
             if done:

@@ -2,8 +2,9 @@ import subprocess
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+import time
 
-load_dotenv(Path('.') / '.train')
+load_dotenv(str(Path('.') / '.train'))
 
 environment = os.getenv("ENV")
 world_name = os.getenv("WORLD")
@@ -20,6 +21,7 @@ for lifetime in range(lifetimes):
 
     done = False
     while not done:
+        time.sleep(1)
         done = True
         for key in processes:
             done = done and processes[key].poll() is not None

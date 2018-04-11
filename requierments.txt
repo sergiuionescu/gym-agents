@@ -1,4 +1,0 @@
-gym==0.9.3
-statsd==3.2.1
-requests
-python-dotenv=0.8.2
