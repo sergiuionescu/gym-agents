@@ -59,7 +59,7 @@ class AgentKnowledgeable(Agent):
         information.add_behaviour(tuple(self.behaviour), reward)
 
         self.knowledge.add_information(observation, information)
-        self.quantifier.behaviour[observation] = tuple(self.behaviour)
+        self.quantifier.add(observation, tuple(self.behaviour))
         if reward <= 0:
             self.knowledge.behaviour.pop(observation, None)
 

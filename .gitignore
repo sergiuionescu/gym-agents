@@ -2,3 +2,4 @@
 *.zip
 rem
 .pyc
+__pycache__
