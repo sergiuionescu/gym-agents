@@ -11,6 +11,10 @@ class Information(object):
         else:
             self.behaviour[behaviour] = reward + 100
 
+    def adjust_behaviour(self, behaviour, multiplier):
+        if behaviour in self.behaviour:
+            self.behaviour[behaviour] *= multiplier
+
     def show_top_behaviour(self):
         top_behaviour = OrderedDict(sorted(self.behaviour.items(), key=lambda x: x[1], reverse=True))
         limit = 2

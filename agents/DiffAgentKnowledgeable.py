@@ -73,7 +73,7 @@ class DiffAgentKnowledgeable(DiffAgentBase.DiffAgentBase):
         if reward > 0:
             if reward > self.last_reward:
                 if not self.behaviour:
-                    self.reset_behaviour(observation)
+                    self.reset(observation)
         else:
             self.prediction(observation)
         self.last_reward = reward

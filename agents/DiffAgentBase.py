@@ -18,11 +18,11 @@ class DiffAgentBase(Agent):
         self.knowledge = knowledge
         self.prediction(observation)
 
-    def reset_behaviour(self, observation):
+    def reset(self, found):
 
         total_score = 0
         count = 0
-        information = self.knowledge.get_information(observation)
+        information = self.knowledge.get_information(found)
         if len(information.behaviour) > 0:
             for b, score in information.behaviour.items():
                 total_score += score

@@ -54,7 +54,7 @@ class World(object):
                 if os.path.isfile(file_path):
                     with open(file_path, 'rb') as f:
                         agent = pickle.load(f)
-                    agent.reset_behaviour(observation)
+                    agent.reset(observation)
                     self.population[self.population.__len__()] = agent
                     return agent
 

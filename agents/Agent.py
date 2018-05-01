@@ -15,7 +15,7 @@ class Agent(object):
     def get_learning_rate(self):
         pass
 
-    def reset_behaviour(self, observation):
+    def reset(self, found):
         pass
 
     def sleep(self):

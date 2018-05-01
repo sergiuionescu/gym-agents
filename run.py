@@ -48,12 +48,14 @@ with tf.Session(config=config) as sess:
     world = worlds.World.World(environment, agent_class, world_name)
 
     found = False
+    reward = 0
 
     agent = world.get_agent(env.action_space, observation)
     agent.set_session(sess)
     for episodes in range(max_episodes):
         agent.experience.reset_attempts()
-        agent.reset_behaviour(observation)
+        agent.reset(found and reward > 0)
+        found = False
         for t in range(max_attempts):
             action = agent.act(observation)
             new_observation, reward, done, info = env.step(action)

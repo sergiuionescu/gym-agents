@@ -3,6 +3,7 @@ import tensorflow as tf
 from agents.Agent import Agent
 from agents.Experience import Experience
 from agents.PositiveBoostPerception import PositiveBoostPerception
+from agents.Quantifier import Quantifier
 
 
 class AgentKnowledgeable(Agent):
@@ -18,9 +19,11 @@ class AgentKnowledgeable(Agent):
         self.experience = experience
         self.knowledge = knowledge
         self.prediction(observation)
+        self.quantifier = Quantifier()
 
-    def reset_behaviour(self, observation):
-        pass
+    def reset(self, found):
+        self.quantifier.adjust_reward(found, self.knowledge)
+        self.quantifier = Quantifier()
 
     def sleep(self):
         self.experience = Experience()
@@ -56,6 +59,7 @@ class AgentKnowledgeable(Agent):
         information.add_behaviour(tuple(self.behaviour), reward)
 
         self.knowledge.add_information(observation, information)
+        self.quantifier.behaviour[observation] = tuple(self.behaviour)
         if reward <= 0:
             self.knowledge.behaviour.pop(observation, None)
 
