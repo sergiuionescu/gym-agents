@@ -55,6 +55,9 @@ with tf.Session(config=config) as sess:
     for episodes in range(max_episodes):
         agent.experience.reset_attempts()
         agent.reset(found and reward > 0)
+        statsd.set(environment + '.' + agent.name + '.' + 'episode', 1)
+        if found:
+            statsd.set(environment + '.' + agent.name + '.' + 'success_rate', 1)
         found = False
         for t in range(max_attempts):
             action = agent.act(observation)
@@ -67,7 +70,6 @@ with tf.Session(config=config) as sess:
             observation = new_observation
 
             statsd.set(environment + '.' + agent.name, agent.experience.total_reward)
-            statsd.gauge(environment + '.' + agent.name + '.' + 'success_rate', agent.experience.get_success_rate())
             statsd.gauge(environment + '.' + agent.name + '.' + 'avg_success_rate',
                          agent.experience.get_avg_success_rate())
 
