@@ -55,9 +55,11 @@ with tf.Session(config=config) as sess:
     for episodes in range(max_episodes):
         agent.experience.reset_attempts()
         agent.reset(found and reward > 0)
-        statsd.set(environment + '.' + agent.name + '.' + 'episode', 1)
+
         if found:
             statsd.set(environment + '.' + agent.name + '.' + 'success_rate', 1)
+        else:
+            statsd.set(environment + '.' + agent.name + '.' + 'episode', 1)
         found = False
         for t in range(max_attempts):
             action = agent.act(observation)
